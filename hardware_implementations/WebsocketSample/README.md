@@ -1,13 +1,14 @@
+# esp8266-websocketclient
+ESP8266 WebsocketClient
+
+A simple Websocket Client for the ESP8266. Supporting ws:// & wss://.
+
+Example:
+
+```
 #include <Arduino.h>
 #include "WebSocketClient.h"
 #include "ESP8266WiFi.h"
-
-const char* ssid = "SUPERONLINE_WiFi_1709";
-const char* password = "3cdSg3cyexbe";
-const char* webSocketServerAddress = "localhost"; //  IP address
-const uint16_t webSocketServerPort = 8082; //port
-const String webSocketEndpoint = "/WebSocketApp/websocketendpoint"; //endpoint
-
 
 WebSocketClient ws(true);
 
@@ -35,3 +36,4 @@ void loop() {
 	}
 	delay(500);
 }
+```
