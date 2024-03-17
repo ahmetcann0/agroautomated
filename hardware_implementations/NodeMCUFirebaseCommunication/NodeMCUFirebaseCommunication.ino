@@ -11,7 +11,7 @@
 using namespace std;
 
 #define _SSID "SUPERONLINE_WiFi_1709"// WiFi name 
-#define _PASSWORD "3cdSg3cyexbe"//WiFi Password 
+#define _PASSWORD ""//WiFi Password 
 #define REFERENCE_URL "agroautomated-8f55e-default-rtdb.firebaseio.com"  //Project reference url 
 //#define FIREBASE_AUTH "H5EagCXkQeQLME8NcmKP7h6GUHq4gaTEHzeSCusi"
 Firebase firebase(REFERENCE_URL);
