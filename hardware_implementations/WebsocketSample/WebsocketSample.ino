@@ -1,9 +1,9 @@
 #include <ArduinoWebsockets.h>
 #include <ESP8266WiFi.h>
 
-const char* ssid = "LOTDC";
-const char* password = "haldirofloriens";
-const char* websockets_server  = "ws://192.168.253.82:8082/WebSocketApp/websocketendpoint"; //localhost yazınca çalışmıyor.
+const char* ssid = "";
+const char* password = "";
+const char* websockets_server  = "ws://192.168.1.2:8082/WebSocketApp/websocketendpoint"; //localhost yazınca çalışmıyor.
 
 using namespace websockets;
 
@@ -51,7 +51,7 @@ void setup() {
     Serial.println("WiFi Connected");
     Serial.print("IP Address: ");
     Serial.print("http://");
-    Serial.print(WiFi.localIP());
+    Serial.println(WiFi.localIP());
 
     connectWSServer();
 
@@ -72,7 +72,7 @@ void loop() {
     }
 
     if(!flag){
-      client.send("Update Humidity");
+      client.send("Update Humidity,111111");
       flag = true;
     }
 
