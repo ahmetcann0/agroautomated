@@ -37,7 +37,7 @@ public class WriteFile {
         
 
         try {
-            FileWriter myWriter = new FileWriter("C:\\Users\\Deniz\\eclipse-workspace\\WebSocketApp\\src\\filename.txt",true);
+            FileWriter myWriter = new FileWriter("C:\\Users\\Deniz\\OneDrive\\Belgeler\\GitHub\\agroautomated_cloned\\agroautomated\\backend_most_new\\WebSocketApp\\src\\filename.txt",true);
             myWriter.write(sensorDataLine.toString()+"\n");
             myWriter.close();
             System.out.println("Successfully wrote to the file.");
