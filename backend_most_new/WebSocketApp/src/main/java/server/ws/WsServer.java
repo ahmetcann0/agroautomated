@@ -11,6 +11,7 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import database.FirebaseAccessPoint;
+import database.FirebaseStorageInteraction;
 import database.RealtimeDatabaseInteraction;
 import model.ProcessMessage;
 import model.WriteFile;
@@ -19,8 +20,8 @@ import model.WriteFile;
 public class WsServer {
 	 private Session session;
 	 private RealtimeDatabaseInteraction db;
-	 private WriteFile wf = new WriteFile("text.txt");
      private ProcessMessage pm = new ProcessMessage();
+     
 
 	
     @OnOpen
@@ -44,8 +45,11 @@ public class WsServer {
         session.getBasicRemote().sendText("!!!");
     	//wf.writeLineDataAndTimestamp("Bu bir örnek satır.");
     	//wf.writeLineDataAndTimestamp("Başka bir örnek satır.");
-        String[] arr = {"safa", "asifös"};
-        wf.writeLineDataAndTimestamp(arr);        
+
+//        FirebaseStorageInteraction dbStorage = new FirebaseStorageInteraction();
+//    	dbStorage.initialize();
+//
+//    	dbStorage.close(); 
         	
     }
  

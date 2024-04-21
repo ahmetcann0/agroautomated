@@ -10,6 +10,8 @@ import org.json.*;
 
 public class ProcessMessage{
 	 private RealtimeDatabaseInteraction rdi;
+	 
+
 
 	public void process(String message) throws IOException {
 		rdi = new RealtimeDatabaseInteraction();
@@ -31,6 +33,11 @@ public class ProcessMessage{
 		}
 		else if("writeDataToStorage".compareTo(jo.get("command").toString()) == 0) {
 			FirebaseStorageInteraction dbStorage = new FirebaseStorageInteraction();
+
+	        String[] arr = {"humidity:"+jo.get("humidity").toString(), "water_level:"+jo.get("water_level").toString(),"soil_moisture:"+jo.get("soil_moisture").toString(), "temperature:"+jo.get("temperature").toString() };
+	    	WriteFile wf = new WriteFile("text.txt");
+	        wf.writeLineDataAndTimestamp(arr); 
+	        
 	    	dbStorage.initialize();
 
 	    	dbStorage.close(); //Close the connection to not interfere with another connections.

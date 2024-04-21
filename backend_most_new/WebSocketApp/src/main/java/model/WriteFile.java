@@ -4,17 +4,18 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.format.DateTimeFormatter;  
+import java.time.format.DateTimeFormatter;
+
+import entities.SensorEntities;
+
 import java.time.LocalDateTime;  
 
 public class WriteFile {
-    private String dosyaYolu;
     private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy,HH:mm:ss");  
     
-    public WriteFile(String dosyaYolu) {
-        this.dosyaYolu = dosyaYolu;
+    public WriteFile(String filename) {
         try {
-            File myObj = new File("C:\\Users\\Deniz\\eclipse-workspace\\WebSocketApp\\src\\filename.txt");
+            File myObj = new File("C:\\Users\\Deniz\\OneDrive\\Belgeler\\GitHub\\agroautomated_cloned\\agroautomated\\backend_most_new\\WebSocketApp\\src\\"+filename);
             if (myObj.createNewFile()) {
                 System.out.println("File created: " + myObj.getName());
             } else {
@@ -35,7 +36,6 @@ public class WriteFile {
         for(int i = 0; i < sensorDataLineArray.length; i++) 
             sensorDataLine.append(",").append(sensorDataLineArray[i]);
         
-
         try {
             FileWriter myWriter = new FileWriter("C:\\Users\\Deniz\\OneDrive\\Belgeler\\GitHub\\agroautomated_cloned\\agroautomated\\backend_most_new\\WebSocketApp\\src\\filename.txt",true);
             myWriter.write(sensorDataLine.toString()+"\n");

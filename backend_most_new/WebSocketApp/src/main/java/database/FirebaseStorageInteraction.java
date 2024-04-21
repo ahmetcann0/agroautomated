@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
@@ -29,31 +31,33 @@ public class FirebaseStorageInteraction{
     	credentials = "C:\\\\Users\\\\Deniz\\\\eclipse-workspace\\\\FirebaseInteraction\\\\agroautomated-8f55e-firebase-adminsdk-mdmjm-56a8631d3b.json";
     	DATABASE_URL = "https://agroautomated-8f55e-default-rtdb.firebaseio.com/";
     }
-    public void initialize() throws FileNotFoundException {
-    	FileInputStream serviceAccount =
-    			new FileInputStream(credentials);
-    	Map<String, Object> auth = new HashMap<String, Object>();
+    public void initialize() throws IOException {
+        FileInputStream serviceAccount = new FileInputStream(credentials);
 
-    	FirebaseOptions options;
-		try {
-			options = FirebaseOptions.builder()
-					.setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setDatabaseUrl(DATABASE_URL)
-                    .setStorageBucket("agroautomated-8f55e.appspot.com")
-                    .build();
-			FirebaseApp fireApp = FirebaseApp.initializeApp(options);
-			StorageClient storageClient = StorageClient.getInstance(fireApp);
-			InputStream testFile = new FileInputStream("C:\\Users\\Deniz\\eclipse-workspace\\WebSocketApp\\src\\filename.txt");
-			String blobString = "userImages/" + "filename.txt";        
+        FirebaseOptions options =  FirebaseOptions.builder()
+                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                .setDatabaseUrl(DATABASE_URL)
+                .setStorageBucket("agroautomated-8f55e.appspot.com") // Firebase Storage kova adı
+                .build();
 
-			storageClient.bucket().create(blobString, testFile , Bucket.BlobWriteOption.userProject("agroautomated-8f55e"));
-     
+        FirebaseApp.initializeApp(options);
 
-        storageClient.bucket().create(blobString, testFile , Bucket.BlobWriteOption.userProject("agroautomated-8f55e"));
-		} catch (IOException e) {
-		}
-        
-		               
+        // Firebase Storage istemcisini oluştur
+        StorageClient storageClient = StorageClient.getInstance();
+
+        // Yüklenecek dosyanın yolu ve adı
+        String filePath = "C:\\Users\\Deniz\\OneDrive\\Belgeler\\GitHub\\agroautomated_cloned\\agroautomated\\backend_most_new\\WebSocketApp\\src\\filename.txt";
+        String destinationPath = "data/filename.txt";
+
+        // Dosyayı yükle
+        try (InputStream testFile = new FileInputStream(filePath)) {
+
+      	  Bucket bucket = storageClient.bucket();
+      	  bucket.create(destinationPath, testFile);
+      	  System.out.println("Dosya başarıyla yüklendi.");
+      	} catch (Exception e) {
+      	  System.err.println("Dosya yüklenirken bir hata oluştu: " + e.getMessage());
+      	}
     }
     public void close() {
     	FirebaseDatabase.getInstance().getApp().delete();
