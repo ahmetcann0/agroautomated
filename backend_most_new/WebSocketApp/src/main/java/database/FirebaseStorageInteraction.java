@@ -4,14 +4,19 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.ServiceAccountCredentials;
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Bucket;
+import com.google.cloud.storage.BucketInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.StorageClient;
@@ -24,6 +29,9 @@ import com.google.firebase.database.ValueEventListener;
 public class FirebaseStorageInteraction{
 	private String credentials ;
     private String DATABASE_URL;
+    private Storage storage;
+    private String bucketName = "agroautomated-8f55e.appspot.com";
+    private boolean storageInitialized = false;
 
     private FirebaseDatabase firebaseDatabase;
 
@@ -37,27 +45,49 @@ public class FirebaseStorageInteraction{
         FirebaseOptions options =  FirebaseOptions.builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                 .setDatabaseUrl(DATABASE_URL)
-                .setStorageBucket("agroautomated-8f55e.appspot.com") // Firebase Storage kova adı
+                .setStorageBucket("agroautomated-8f55e.appspot.com") 
                 .build();
 
         FirebaseApp.initializeApp(options);
+        
+        storage = StorageOptions.newBuilder()
+                .setCredentials(ServiceAccountCredentials.fromStream(new FileInputStream(credentials)))
+                .build()
+                .getService();
+    	storageInitialized = true;
+        
 
-        // Firebase Storage istemcisini oluştur
-        StorageClient storageClient = StorageClient.getInstance();
 
-        // Yüklenecek dosyanın yolu ve adı
-        String filePath = "C:\\Users\\Deniz\\OneDrive\\Belgeler\\GitHub\\agroautomated_cloned\\agroautomated\\backend_most_new\\WebSocketApp\\src\\filename.txt";
-        String destinationPath = "data/filename.txt";
 
-        // Dosyayı yükle
-        try (InputStream testFile = new FileInputStream(filePath)) {
+    }
+    public void uploadAFileToStorage(String filePath , String foldername,String filename) {
+        
+    	if(storageInitialized == true) {
+	        try (InputStream testFile = new FileInputStream(filePath)) {
+	        	
+	            BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, foldername+"/"+filename)
+	                    .setContentType("text/plain")
+	                    .build();
+	
+	            storage.create(blobInfo, testFile); //Upload the file but "create" is deprecated why????
+	
+	            System.out.println("File Uploaded to Firebase Storage!!!");
+	        } catch (Exception e) {
+	            System.err.println("Dosya yüklenirken bir hata oluştu: " + e.getMessage());
+	        }
+    	}
+    	else     		
+    		System.out.println("Firebase Storage did not initialize please call \"initialize()\" first!" );
 
-      	  Bucket bucket = storageClient.bucket();
-      	  bucket.create(destinationPath, testFile);
-      	  System.out.println("Dosya başarıyla yüklendi.");
-      	} catch (Exception e) {
-      	  System.err.println("Dosya yüklenirken bir hata oluştu: " + e.getMessage());
-      	}
+    }
+    public void downloadAFile(String foldername,String filename) throws IOException  {
+    	if(storageInitialized == true) {
+    		Blob blob = storage.get(bucketName, foldername+"/"+filename);
+            blob.downloadTo(Paths.get("C:\\Users\\Deniz\\OneDrive\\Belgeler\\GitHub\\agroautomated_cloned\\agroautomated\\backend_most_new\\WebSocketApp\\src\\downloadedFiles\\download.txt"));
+    	}
+    	else 
+    		System.out.println("Firebase Storage did not initialize please call \"initialize()\" first!" );
+    		
     }
     public void close() {
     	FirebaseDatabase.getInstance().getApp().delete();

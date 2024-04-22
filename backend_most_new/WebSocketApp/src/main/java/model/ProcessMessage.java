@@ -9,10 +9,8 @@ import java.util.Map;
 import org.json.*;
 
 public class ProcessMessage{
-	 private RealtimeDatabaseInteraction rdi;
+	private RealtimeDatabaseInteraction rdi;
 	 
-
-
 	public void process(String message) throws IOException {
 		rdi = new RealtimeDatabaseInteraction();
 		JSONObject jo = new JSONObject(message); 
@@ -39,7 +37,10 @@ public class ProcessMessage{
 	        wf.writeLineDataAndTimestamp(arr); 
 	        
 	    	dbStorage.initialize();
-
+	        String filePath = "C:\\Users\\Deniz\\OneDrive\\Belgeler\\GitHub\\agroautomated_cloned\\agroautomated\\backend_most_new\\WebSocketApp\\src\\filename.txt";
+	        String destinationPath = "data/filename.txt";
+	        dbStorage.uploadAFileToStorage(filePath,"data", jo.get("plantId").toString());
+	        dbStorage.downloadAFile("data", jo.get("plantId").toString());
 	    	dbStorage.close(); //Close the connection to not interfere with another connections.
 		}
 //		if(message.compareTo("Retrieve data") == 0)

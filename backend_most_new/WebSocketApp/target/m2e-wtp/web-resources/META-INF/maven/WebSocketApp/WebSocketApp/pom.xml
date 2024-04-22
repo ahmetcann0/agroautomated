@@ -132,5 +132,10 @@
         	<artifactId>123-backend</artifactId>
         	<version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+        	<groupId>FirebaseRealtimeDBInteraction</groupId>
+        	<artifactId>FirebaseInteraction</artifactId>
+        	<version>0.0.1-SNAPSHOT</version>
+        </dependency>
   </dependencies>
 </project>

@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
-            
+                
+    
     
     <wb-module deploy-name="WebSocketApp-0.0.1-SNAPSHOT">
-                
-        <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
                         
         
+        <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
+                                
+        
+        
         <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
-                        
+                                
+        
         
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
         <dependent-module archiveName="123-backend-0.0.1-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/123-backend/123-backend">
@@ -16,15 +20,22 @@
         <dependent-module archiveName="123-frontend-0.0.1-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/123-frontend/123-frontend">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-                        
+        <dependent-module archiveName="FirebaseInteraction-0.0.1-SNAPSHOT.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/FirebaseInteraction/FirebaseInteraction">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+                                
+        
         
         <property name="context-root" value="WebSocketApp"/>
-                        
+                                
+        
         
         <property name="java-output-path" value="/WebSocketApp/build/classes"/>
-                    
+                            
+    
     
     </wb-module>
-        
+            
+
 
 </project-modules>
