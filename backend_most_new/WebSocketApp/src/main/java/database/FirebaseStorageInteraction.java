@@ -66,7 +66,6 @@ public class FirebaseStorageInteraction{
 	                    .setContentType("text/plain")
 	                    .build();
 	            
-	            Thread.sleep(5000);
 	            storage.create(blobInfo, testFile); //Upload the file but "create" is deprecated why????
 	            System.out.println("File Uploaded to Firebase Storage!!!");
 	        } catch (Exception e) {

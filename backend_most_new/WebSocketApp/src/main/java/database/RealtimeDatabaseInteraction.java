@@ -25,10 +25,24 @@ public class RealtimeDatabaseInteraction {
     private String DATABASE_URL;
 
     private FirebaseDatabase firebaseDatabase;
+    
+    private static RealtimeDatabaseInteraction realtimeDatabaseInteractionObject = null;
 
-    public RealtimeDatabaseInteraction() throws IOException {
+    private RealtimeDatabaseInteraction() throws IOException {
     	credentials = "C:\\\\Users\\\\Deniz\\\\eclipse-workspace\\\\FirebaseInteraction\\\\agroautomated-8f55e-firebase-adminsdk-mdmjm-56a8631d3b.json";
     	DATABASE_URL = "https://agroautomated-8f55e-default-rtdb.firebaseio.com/";
+    }
+    public synchronized static RealtimeDatabaseInteraction getInstance() {
+    	if(realtimeDatabaseInteractionObject == null) {
+    		try {
+				realtimeDatabaseInteractionObject = new RealtimeDatabaseInteraction();
+			} catch (IOException e) {
+				System.out.println("Exception in RealtimeDatabaseInteraction>getInstance()");
+				e.printStackTrace();
+			}
+    	}
+    	return realtimeDatabaseInteractionObject;
+    	
     }
     public int initialize() throws FileNotFoundException {
     	FileInputStream serviceAccount =

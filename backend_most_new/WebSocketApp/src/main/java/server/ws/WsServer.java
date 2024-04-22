@@ -24,8 +24,7 @@ import model.WriteFile;
 public class WsServer {
 	 private Session session;
 	 private RealtimeDatabaseInteraction db;
-     private ProcessMessage pm = new ProcessMessage();
-     private static final Map<String, Session> clients = Collections.synchronizedMap(new HashMap<>());
+     private ProcessMessage pm = ProcessMessage.getInstance();
 
 	
     @OnOpen
@@ -34,7 +33,6 @@ public class WsServer {
     	this.session = session;
     	System.out.println("Client has been connected: "+session.getId());
         session.getBasicRemote().sendText("Websocket Connection Established!");
-        clients.put(session.getId(), session);
         
         JSONObject jo = new JSONObject();
         jo.put("clientId", session.getId());
@@ -45,24 +43,23 @@ public class WsServer {
     @OnClose
     public void onClose(){
         System.out.println("Close Connection ...");
-        clients.remove(session.getId());
 
     }
      
     @OnMessage
     public void onMessage(String message) throws IOException, InterruptedException{
         System.out.println("Message from the client: " + message);
+        long startTime = System.currentTimeMillis();
         pm.process(message);
+        long stopTime = System.currentTimeMillis();
+        System.out.println("Elapsed time is: " +(stopTime-startTime)+" ms");
+        Thread.sleep(1000);
 		JSONObject jo = new JSONObject(message); 
-		System.out.println(jo.toString());
-        Session clientSession = clients.get(jo.getInt("clientId")+"");
-        if (clientSession != null) {
-            try {
-                clientSession.getBasicRemote().sendText("Process finished client can send message!");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+
+        session.getBasicRemote().sendText("Process finished client can send message!");
+
+        
+        
 //        session.getBasicRemote().sendText("Process finished client can send message!");
     	//wf.writeLineDataAndTimestamp("Bu bir örnek satır.");
     	//wf.writeLineDataAndTimestamp("Başka bir örnek satır.");

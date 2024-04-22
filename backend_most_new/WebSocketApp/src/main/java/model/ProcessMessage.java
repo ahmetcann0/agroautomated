@@ -12,10 +12,12 @@ public class ProcessMessage{
 	private RealtimeDatabaseInteraction rdi;
 	private RealtimeDatabaseInteraction db;
 	private FirebaseStorageInteraction dbStorage;
+	
+	private static ProcessMessage processMessageObject = null;
 
-	public ProcessMessage() {
+	private ProcessMessage() {
 		try {
-			db = new RealtimeDatabaseInteraction();
+			db = RealtimeDatabaseInteraction.getInstance();
 			db.initialize();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -27,26 +29,26 @@ public class ProcessMessage{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
+	
+	public synchronized static ProcessMessage getInstance() {
+		if(processMessageObject == null)
+			processMessageObject = new ProcessMessage();
+		return processMessageObject;	
+	}
+	
 	public void process(String message) throws IOException, InterruptedException {
-		rdi = new RealtimeDatabaseInteraction();
 		JSONObject jo = new JSONObject(message); 
 		if("retrieveAll".compareTo(jo.get("command").toString()) == 0) {
-			RealtimeDatabaseInteraction db = new RealtimeDatabaseInteraction();
 	    	int ifInitializedSuccessfully = db.initialize();
 	    	db.retrieveCurrentData("ImgK7HBzrLhoCm0xoWE2");
 	    	db.close(); //Close the connection to not interfere with another connections.
 		}
 		else if("writeDataToRealtime".compareTo(jo.get("command").toString()) == 0) {
-			rdi.updateHumidity(Integer.parseInt(jo.get("humidity").toString()), jo.get("plantId").toString());
-			Thread.sleep(2000);
-			rdi.updateWaterLevel(Double.parseDouble(jo.get("water_level").toString()), jo.get("plantId").toString());
-			Thread.sleep(2000);
-			rdi.updateSoilMoisture(Integer.parseInt(jo.get("soil_moisture").toString()), jo.get("plantId").toString());
-			Thread.sleep(2000);
-			rdi.updateTemperature(Integer.parseInt(jo.get("temperature").toString()), jo.get("plantId").toString());
-	        Thread.sleep(2000);
+			db.updateHumidity(Integer.parseInt(jo.get("humidity").toString()), jo.get("plantId").toString());
+			db.updateWaterLevel(Double.parseDouble(jo.get("water_level").toString()), jo.get("plantId").toString());
+			db.updateSoilMoisture(Integer.parseInt(jo.get("soil_moisture").toString()), jo.get("plantId").toString());
+			db.updateTemperature(Integer.parseInt(jo.get("temperature").toString()), jo.get("plantId").toString());
 
 			//db.close(); //Close the connection to not interfere with another connections.
 			//db = null;
@@ -59,7 +61,6 @@ public class ProcessMessage{
 	        
 	        String filePath = "C:\\Users\\Deniz\\OneDrive\\Belgeler\\GitHub\\agroautomated_cloned\\agroautomated\\backend_most_new\\WebSocketApp\\src\\filename.txt";
 	        dbStorage.uploadAFileToStorage(filePath,"data", jo.get("plantId").toString()+".txt");
-	        Thread.sleep(2000);
 
 	        //dbStorage.downloadAFile("data", jo.get("plantId").toString());
 	        //Thread.sleep(2000);
