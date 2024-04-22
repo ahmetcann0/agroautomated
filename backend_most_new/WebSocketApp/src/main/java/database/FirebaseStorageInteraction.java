@@ -34,21 +34,15 @@ public class FirebaseStorageInteraction{
     private boolean storageInitialized = false;
 
     private FirebaseDatabase firebaseDatabase;
+    
+    private static FirebaseStorageInteraction firebaseStorageInteraction = null; //Singleton instance.
 
-    public FirebaseStorageInteraction() throws IOException {
+
+    private FirebaseStorageInteraction() throws IOException {
     	credentials = "C:\\\\Users\\\\Deniz\\\\eclipse-workspace\\\\FirebaseInteraction\\\\agroautomated-8f55e-firebase-adminsdk-mdmjm-56a8631d3b.json";
     	DATABASE_URL = "https://agroautomated-8f55e-default-rtdb.firebaseio.com/";
     }
     public void initialize() throws IOException {
-        FileInputStream serviceAccount = new FileInputStream(credentials);
-
-        FirebaseOptions options =  FirebaseOptions.builder()
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .setDatabaseUrl(DATABASE_URL)
-                .setStorageBucket("agroautomated-8f55e.appspot.com") 
-                .build();
-
-        FirebaseApp.initializeApp(options);
         
         storage = StorageOptions.newBuilder()
                 .setCredentials(ServiceAccountCredentials.fromStream(new FileInputStream(credentials)))
@@ -56,11 +50,14 @@ public class FirebaseStorageInteraction{
                 .getService();
     	storageInitialized = true;
         
-
-
-
     }
-    public void uploadAFileToStorage(String filePath , String foldername,String filename) {
+    public synchronized static FirebaseStorageInteraction getInstance() throws IOException {
+    	if(firebaseStorageInteraction == null)
+    		firebaseStorageInteraction = new FirebaseStorageInteraction();
+		return firebaseStorageInteraction;
+    }
+    @SuppressWarnings("deprecation")
+	public void uploadAFileToStorage(String filePath , String foldername,String filename) {
         
     	if(storageInitialized == true) {
 	        try (InputStream testFile = new FileInputStream(filePath)) {
@@ -68,9 +65,9 @@ public class FirebaseStorageInteraction{
 	            BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, foldername+"/"+filename)
 	                    .setContentType("text/plain")
 	                    .build();
-	
+	            
+	            Thread.sleep(5000);
 	            storage.create(blobInfo, testFile); //Upload the file but "create" is deprecated why????
-	
 	            System.out.println("File Uploaded to Firebase Storage!!!");
 	        } catch (Exception e) {
 	            System.err.println("Dosya yüklenirken bir hata oluştu: " + e.getMessage());
@@ -83,7 +80,9 @@ public class FirebaseStorageInteraction{
     public void downloadAFile(String foldername,String filename) throws IOException  {
     	if(storageInitialized == true) {
     		Blob blob = storage.get(bucketName, foldername+"/"+filename);
-            blob.downloadTo(Paths.get("C:\\Users\\Deniz\\OneDrive\\Belgeler\\GitHub\\agroautomated_cloned\\agroautomated\\backend_most_new\\WebSocketApp\\src\\downloadedFiles\\download.txt"));
+    		if (blob != null)
+    			blob.downloadTo(Paths.get("C:\\Users\\Deniz\\OneDrive\\Belgeler\\GitHub\\agroautomated_cloned\\agroautomated\\backend_most_new\\WebSocketApp\\src\\downloadedFiles\\download.txt"));
+    		else System.out.println("blob is null!!!!!");
     	}
     	else 
     		System.out.println("Firebase Storage did not initialize please call \"initialize()\" first!" );

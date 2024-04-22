@@ -33,15 +33,12 @@ public class RealtimeDatabaseInteraction {
     public int initialize() throws FileNotFoundException {
     	FileInputStream serviceAccount =
     			new FileInputStream(credentials);
-    	Map<String, Object> auth = new HashMap<String, Object>();
-    	auth.put("uid", "backend-server");
 
     	FirebaseOptions options;
 		try {
 			options = FirebaseOptions.builder()
 			        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
 			        .setDatabaseUrl(DATABASE_URL)
-			        .setDatabaseAuthVariableOverride(auth)
 			        .build();
 			 FirebaseApp.initializeApp(options);
 			 return 1;
