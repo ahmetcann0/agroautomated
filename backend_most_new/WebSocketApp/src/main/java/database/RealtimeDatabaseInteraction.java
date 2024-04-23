@@ -17,6 +17,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import entities.Plant;
 import entities.SensorEntities;
 
 public class RealtimeDatabaseInteraction {
@@ -85,8 +86,17 @@ public class RealtimeDatabaseInteraction {
 			  }
 			});
     }
+    
+    public void updaterDriver(int userId, String plantId,  HashMap<Integer, HashMap<String, Plant>> userId_PlantId_Plant_HashMap) {
+    	Plant correspondingUsersPlant = (userId_PlantId_Plant_HashMap.get(userId)).get(plantId); 
+    	
+    	updateHumidity(plantId, correspondingUsersPlant.getHumidity());
+		updateWaterLevel(plantId, correspondingUsersPlant.getWater_level());
+		updateSoilMoisture(plantId, correspondingUsersPlant.getSoil_moisture());
+		updateTemperature(plantId, correspondingUsersPlant.getTemperature());
+    }
 
-    public void updateHumidity(int humidity, String plantId) {
+    public void updateHumidity(String plantId, int humidity) {
         try {
         	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("humidity_integer");
             final CountDownLatch latch = new CountDownLatch(1);
@@ -96,9 +106,6 @@ public class RealtimeDatabaseInteraction {
                     if (databaseError != null) {
                         System.out.println("Data could not be saved " + databaseError.getMessage());
                         latch.countDown();
-                    } else {
-                        System.out.println("Data saved successfully.");
-                        latch.countDown();
                     }
                 }
             });
@@ -107,7 +114,8 @@ public class RealtimeDatabaseInteraction {
             e.printStackTrace();
         }
     }
-    public void updateWaterLevel(double distance_float, String plantId) {
+    
+    public void updateWaterLevel(String plantId,double distance_float) {
         try {
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("distance_float");
             final CountDownLatch latch = new CountDownLatch(1);
@@ -117,10 +125,7 @@ public class RealtimeDatabaseInteraction {
                     if (databaseError != null) {
                         System.out.println("Data could not be saved " + databaseError.getMessage());
                         latch.countDown();
-                    } else {
-                        System.out.println("Data saved successfully.");
-                        latch.countDown();
-                    }
+                    } 
                 }
             });
             latch.await();
@@ -128,7 +133,7 @@ public class RealtimeDatabaseInteraction {
             e.printStackTrace();
         }
     }
-    public void updateTemperature(int temperature_integer, String plantId) {
+    public void updateTemperature(String plantId, int temperature_integer) {
         try {
         	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("temperature_integer");
             final CountDownLatch latch = new CountDownLatch(1);
@@ -138,10 +143,7 @@ public class RealtimeDatabaseInteraction {
                     if (databaseError != null) {
                         System.out.println("Data could not be saved " + databaseError.getMessage());
                         latch.countDown();
-                    } else {
-                        System.out.println("Data saved successfully.");
-                        latch.countDown();
-                    }
+                    } 
                 }
             });
             latch.await();
@@ -149,7 +151,7 @@ public class RealtimeDatabaseInteraction {
             e.printStackTrace();
         }
     }
-    public void updateSoilMoisture(int soil_moisture_integer, String plantId) {
+    public void updateSoilMoisture(String plantId, int soil_moisture_integer) {
         try {
         	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("soil_moisture_integer");
             final CountDownLatch latch = new CountDownLatch(1);
@@ -158,9 +160,6 @@ public class RealtimeDatabaseInteraction {
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                     if (databaseError != null) {
                         System.out.println("Data could not be saved " + databaseError.getMessage());
-                        latch.countDown();
-                    } else {
-                        System.out.println("Data saved successfully.");
                         latch.countDown();
                     }
                 }
