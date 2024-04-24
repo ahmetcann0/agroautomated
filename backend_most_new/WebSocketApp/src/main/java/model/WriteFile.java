@@ -12,12 +12,14 @@ import java.time.LocalDateTime;
 
 public class WriteFile {
     private DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy,HH:mm:ss");
+    private String filePath; 
     private String filename;
     
-    public WriteFile(String filename) {
+    public WriteFile(String filePath, String filename) {
+    	this.filePath = filePath;
     	this.filename = filename;
         try {
-            File myObj = new File(System.getProperty("user.dir")+"\\"+filename);
+            File myObj = new File(filePath+filename);
             if (myObj.createNewFile()) {
                 System.out.println("File created: " + myObj.getName());
             } else {
@@ -39,12 +41,10 @@ public class WriteFile {
             sensorDataLine.append(",").append(sensorDataLineArray[i]);
         
         try {
-            FileWriter myWriter = new FileWriter(System.getProperty("user.dir")+"\\"+filename,true);
+            FileWriter myWriter = new FileWriter(filePath+"\\"+filename,true);
             myWriter.write(sensorDataLine.toString()+"\n");
             myWriter.close();
             myWriter = null;
-            System.out.println("Successfully wrote to the file.");
-            System.out.println(System.getProperty("user.dir")+"\\"+filename);
         } catch (IOException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();

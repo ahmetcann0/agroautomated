@@ -25,8 +25,10 @@ import entities.Plant;
 @ServerEndpoint("/websocketendpoint")
 public class WsServer {
 	 private Session session;
+	 
 	 Map<Integer, Session> sessions = new ConcurrentHashMap<>();
 	 HashMap<Integer, HashMap<String, Plant>> userPlants = new HashMap<Integer, HashMap<String, Plant>>();
+	 
 	 //Integer: userId, String:plantId, Plant: Plant object.
 
 	 private RealtimeDatabaseInteraction db;
@@ -74,17 +76,11 @@ public class WsServer {
         System.out.println(result);
         long stopTime = System.currentTimeMillis();
         System.out.println("Elapsed time is: " +(stopTime-startTime)+" ms");
-        
-        
-        Thread.sleep(1000);
+           
 		//JSONObject jo = new JSONObject(message); 
 
         session.getBasicRemote().sendText("Process finished client can send message!");
         
-        
-//        session.getBasicRemote().sendText("Process finished client can send message!");
-    	//wf.writeLineDataAndTimestamp("Bu bir örnek satır.");
-    	//wf.writeLineDataAndTimestamp("Başka bir örnek satır.");
 
 //        FirebaseStorageInteraction dbStorage = new FirebaseStorageInteraction();
 //    	dbStorage.initialize();

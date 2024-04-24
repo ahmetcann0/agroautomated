@@ -97,7 +97,7 @@ public class RealtimeDatabaseInteraction {
     }
 
     public void updateHumidity(String plantId, int humidity) {
-        try {
+    	try {
         	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("humidity_integer");
             final CountDownLatch latch = new CountDownLatch(1);
             ref.setValue(humidity, new DatabaseReference.CompletionListener() {
@@ -105,6 +105,9 @@ public class RealtimeDatabaseInteraction {
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                     if (databaseError != null) {
                         System.out.println("Data could not be saved " + databaseError.getMessage());
+                        latch.countDown();
+                    } else {
+                        System.out.println("Data saved successfully.");
                         latch.countDown();
                     }
                 }
@@ -125,7 +128,10 @@ public class RealtimeDatabaseInteraction {
                     if (databaseError != null) {
                         System.out.println("Data could not be saved " + databaseError.getMessage());
                         latch.countDown();
-                    } 
+                    } else {
+                        System.out.println("Data saved successfully.");
+                        latch.countDown();
+                    }
                 }
             });
             latch.await();
@@ -136,14 +142,17 @@ public class RealtimeDatabaseInteraction {
     public void updateTemperature(String plantId, int temperature_integer) {
         try {
         	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("temperature_integer");
-            final CountDownLatch latch = new CountDownLatch(1);
+        	final CountDownLatch latch = new CountDownLatch(1);
             ref.setValue(temperature_integer, new DatabaseReference.CompletionListener() {
                 @Override
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                     if (databaseError != null) {
                         System.out.println("Data could not be saved " + databaseError.getMessage());
                         latch.countDown();
-                    } 
+                    } else {
+                        System.out.println("Data saved successfully.");
+                        latch.countDown();
+                    }
                 }
             });
             latch.await();
@@ -154,12 +163,15 @@ public class RealtimeDatabaseInteraction {
     public void updateSoilMoisture(String plantId, int soil_moisture_integer) {
         try {
         	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("soil_moisture_integer");
-            final CountDownLatch latch = new CountDownLatch(1);
+        	final CountDownLatch latch = new CountDownLatch(1);
             ref.setValue(soil_moisture_integer, new DatabaseReference.CompletionListener() {
                 @Override
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                     if (databaseError != null) {
                         System.out.println("Data could not be saved " + databaseError.getMessage());
+                        latch.countDown();
+                    } else {
+                        System.out.println("Data saved successfully.");
                         latch.countDown();
                     }
                 }

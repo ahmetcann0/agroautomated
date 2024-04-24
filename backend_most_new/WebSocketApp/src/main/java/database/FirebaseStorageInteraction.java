@@ -57,12 +57,13 @@ public class FirebaseStorageInteraction{
 		return firebaseStorageInteraction;
     }
     @SuppressWarnings("deprecation")
-	public void uploadAFileToStorage(String filePath , String foldername,String filename) {
+	public void uploadAFileToStorage(String localFilePath, String filename) {
+    	String databaseStorageLocation = "data/" + filename;
         
     	if(storageInitialized == true) {
-	        try (InputStream testFile = new FileInputStream(filePath)) {
+	        try (InputStream testFile = new FileInputStream(localFilePath+filename)) {
 	        	
-	            BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, foldername+"/"+filename)
+	            BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, databaseStorageLocation)
 	                    .setContentType("text/plain")
 	                    .build();
 	            
