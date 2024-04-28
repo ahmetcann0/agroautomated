@@ -1,5 +1,6 @@
 package model;
 
+import database.FCMSender;
 import database.FirebaseStorageInteraction;
 import database.RealtimeDatabaseInteraction;
 import entities.Plant;
@@ -113,9 +114,18 @@ public class ProcessMessage{
 			        wf.writeLineDataAndTimestamp(arr); 
 			        
 			        if(Integer.parseInt(min) % 1 == 0 && Double.parseDouble(sec) < 10) {						
-						System.out.println("hereeee");			        
+			        	System.out.println("Written existing file to Firebase Storage!!!");			        
 				        dbStorage.uploadAFileToStorage(filePath, fileName);
 					}
+			        
+			        if(Integer.parseInt(jo.get("soil_moisture").toString()) < 300) {
+			        	try {
+							FCMSender.sendMessageToFcmRegistrationToken();
+							System.out.println("Sended Notification!!!");
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+			        }
 
 					return(userId + "'s plant with id:"+plantId+" realtime values was successfully updated and written to local file!");
 				}		
