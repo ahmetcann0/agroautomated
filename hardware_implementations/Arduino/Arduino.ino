@@ -29,8 +29,21 @@ void loop() {
   delay(1000);
   int nodemcu_data = ArduinoUno.parseInt();
   if(nodemcu_data == 1){
-    sendDataToNodeMCU();
+
   }
+  
+  int chk = DHT.read(DHT11_PIN);
+  String temperature = String(DHT.temperature);
+  delay(100);
+  String humidity = String(DHT.humidity);
+  delay(100);
+  String distance = String(get_distance());
+  
+  Serial.print("Distance: ");
+  delay(100);
+  Serial.print(distance+" / ");
+  Serial.print("Temperature = " + temperature+ " / ");
+  Serial.print("Humidity = " + humidity+"\n");
 }
 
 char* getMoistureLevel()
@@ -75,7 +88,7 @@ void sendDataToNodeMCU()
   delay(100);
   String humidity = String(DHT.humidity);
   delay(100);
-  int soil_moisture_level = analogRead(0);
+  //int soil_moisture_level = analogRead(0);
   String distance = String(get_distance());
   /* String condition_soil_string;
   if (soil_moisture_level > 900) {
@@ -102,14 +115,18 @@ void sendDataToNodeMCU()
     Serial.print("Humidity = " + humidity+"\n");
     delay(100);
 
-    Serial.print(String(getMoistureLevel())+ "\n");
+    //Serial.print(String(getMoistureLevel())+ "\n");
     delay(100);
 
     //Send sensor data to NodeMCU Module.
     //String sendSensorData = dis + "|" + String(DHT.temperature) + "|" + String(DHT.humidity) + "|" + String(getMoistureLevel())+"/n";
-    String sendSensorData = distance + "|" + temperature + "|" + humidity + "|" + soil_moisture_level;
+
+
+    //String sendSensorData = distance + "|" + temperature + "|" + humidity + "|" + soil_moisture_level;
+
+
     /*String sendSensorData = "Distance:" +dis+ "Temperature = " + String(DHT.temperature)+ " / ""Humidity = " + String(DHT.humidity)+"\n"+String(getMoistureLevel());*/
-    ArduinoUno.print(sendSensorData); //10, Software Serial protokolü ile yollanacak
-    ArduinoUno.print("\n"); //nodemcu kısmındaki nodemcu.read() == '\n' satisfy olacak.
+    //ArduinoUno.print(sendSensorData); //10, Software Serial protokolü ile yollanacak
+    //ArduinoUno.print("\n"); //nodemcu kısmındaki nodemcu.read() == '\n' satisfy olacak.
     free(moisture_indicator); 
 }
