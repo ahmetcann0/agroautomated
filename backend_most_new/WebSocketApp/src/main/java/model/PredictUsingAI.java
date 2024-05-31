@@ -20,14 +20,22 @@ public class PredictUsingAI {
 	private int humidity;
 	private int soilMoisture;
 	private int temperature;
-	
-	
-	public PredictUsingAI(String cropType, int cropDays, int soilMoisture, int temperature ,int humidity) {
+	private double Nitrogen;
+	private double Phosphorous;
+	private double Potassium;
+	private double pH; 
+	private double Rainfall;
+
+	public PredictUsingAI(String cropType, int cropDays, int soilMoisture, int temperature ,int humidity, double nitrogen, double potassium, double ph, double rainfall) {
 		this.cropType = cropType;
 		this.cropDays = cropDays;
 		this.soilMoisture = soilMoisture;
 		this.temperature = temperature;
 		this.humidity = humidity;
+		this.Nitrogen = nitrogen;
+		this.Potassium = potassium;
+		this.pH = ph;
+		this.Rainfall = rainfall;
 	}
 	
 	public void predictIrrigation(String Croptype, int Cropdays, int Soilmoisture, int Temperature ,int Humidity) {
@@ -117,7 +125,7 @@ public class PredictUsingAI {
             user_input.setValue(data.attribute("K"), K);
 
             
-            System.out.print("Enter Temperature (°C): ");
+            System.out.print("Enter Temperature (Â°C): ");
             double temperature = Temperature;
             user_input.setValue(data.attribute("temperature"), temperature);
 
@@ -146,6 +154,86 @@ public class PredictUsingAI {
         } catch (Exception e) {
             e.printStackTrace();
         }
+	}
+
+	public String getCropType() {
+		return cropType;
+	}
+
+	public void setCropType(String cropType) {
+		this.cropType = cropType;
+	}
+
+	public int getCropDays() {
+		return cropDays;
+	}
+
+	public void setCropDays(int cropDays) {
+		this.cropDays = cropDays;
+	}
+
+	public int getHumidity() {
+		return humidity;
+	}
+
+	public void setHumidity(int humidity) {
+		this.humidity = humidity;
+	}
+
+	public int getSoilMoisture() {
+		return soilMoisture;
+	}
+
+	public void setSoilMoisture(int soilMoisture) {
+		this.soilMoisture = soilMoisture;
+	}
+
+	public int getTemperature() {
+		return temperature;
+	}
+
+	public void setTemperature(int temperature) {
+		this.temperature = temperature;
+	}
+
+	public double getNitrogen() {
+		return Nitrogen;
+	}
+
+	public void setNitrogen(double nitrogen) {
+		Nitrogen = nitrogen;
+	}
+
+	public double getPhosphorous() {
+		return Phosphorous;
+	}
+
+	public void setPhosphorous(double phosphorous) {
+		Phosphorous = phosphorous;
+	}
+
+	public double getPotassium() {
+		return Potassium;
+	}
+
+	public void setPotassium(double potassium) {
+		Potassium = potassium;
+	}
+
+	public double getpH() {
+		return pH;
+	}
+
+	public void setpH(double pH) {
+		this.pH = pH;
+	}
+
+	public double getRainfall() {
+		return Rainfall;
+	}
+
+	public void setRainfall(double rainfall) {
+		Rainfall = rainfall;
 	}
 	
 }
