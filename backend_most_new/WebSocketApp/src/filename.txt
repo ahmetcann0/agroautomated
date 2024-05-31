@@ -45,3 +45,4 @@
 22/04/2024,09:57:31,humidity:40,water_level:200000.9,soil_moisture:200,temperature:25
 22/04/2024,09:57:34,humidity:40,water_level:200000.9,soil_moisture:200,temperature:25
 22/04/2024,09:57:36,humidity:40,water_level:200000.9,soil_moisture:200,temperature:25
+31/05/2024,17:45:16,safa,asifös
