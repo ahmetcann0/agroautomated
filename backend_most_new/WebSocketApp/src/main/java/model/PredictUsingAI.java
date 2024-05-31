@@ -52,26 +52,18 @@ public class PredictUsingAI {
             Instance user_input = new DenseInstance(data.numAttributes());
             user_input.setDataset(data);
 
-            System.out.print("Crop Type: ");
             String cropType = Croptype;
             user_input.setValue(data.attribute("CropType"), cropType);
 
-            System.out.print("Crop Days: ");
             int cropDays = Cropdays;
             user_input.setValue(data.attribute("CropDays"), cropDays);
 
-            System.out.print("Soil Moisture: ");
-            //int soilMoisture = Integer.parseInt(reader.readLine());
             int soilMoisture = Soilmoisture;
             user_input.setValue(data.attribute("SoilMoisture"), soilMoisture);
 
-            System.out.print("Temperature: ");
-            //int temperature = Integer.parseInt(reader.readLine());
             int temperature = Temperature;
             user_input.setValue(data.attribute("temperature"), temperature);
 
-            System.out.print("Humidity: ");
-            //int humidity = Integer.parseInt(reader.readLine());
             int humidity = Humidity;
             user_input.setValue(data.attribute("Humidity"), humidity);
 
@@ -110,37 +102,31 @@ public class PredictUsingAI {
             user_input.setDataset(data);
 
             
-            System.out.print("Enter Nitrogen content (N): ");
+
             double N = Nitrogen;
             user_input.setValue(data.attribute("N"), N);
+			
 
-            
-            System.out.print("Enter Phosphorous content (P): ");
             double P = Phosphorous;
             user_input.setValue(data.attribute("P"), P);
+			
 
-            
-            System.out.print("Enter Potassium content (K): ");
             double K = Potassium;
             user_input.setValue(data.attribute("K"), K);
+			
 
-            
-            System.out.print("Enter Temperature (°C): ");
             double temperature = Temperature;
             user_input.setValue(data.attribute("temperature"), temperature);
 
-            
-            System.out.print("Enter Humidity (%): ");
+        
             double humidity = Humidity;
             user_input.setValue(data.attribute("humidity"), humidity);
 
-           
-            System.out.print("Enter pH value: ");
+
             double ph = pH;
             user_input.setValue(data.attribute("ph"), ph);
 
             
-            System.out.print("Enter Rainfall (mm): ");
             double rainfall = Rainfall;
             user_input.setValue(data.attribute("rainfall"), rainfall);
 
