@@ -87,20 +87,29 @@ public class RealtimeDatabaseInteraction {
 			});
     }
     
-    public void updaterDriver(int userId, String plantId,  HashMap<Integer, HashMap<String, Plant>> userId_PlantId_Plant_HashMap) {
+    public void updaterDriver(int userId, String plantId,  HashMap<Integer, HashMap<String, Plant>> userId_PlantId_Plant_HashMap, String cropRecommendationFromAi) {
     	Plant correspondingUsersPlant = (userId_PlantId_Plant_HashMap.get(userId)).get(plantId); 
     	
-    	updateHumidity(plantId, correspondingUsersPlant.getHumidity());
 		updateWaterLevel(plantId, correspondingUsersPlant.getWater_level());
 		updateSoilMoisture(plantId, correspondingUsersPlant.getSoil_moisture());
 		updateTemperature(plantId, correspondingUsersPlant.getTemperature());
+		
+		updateConductivity(plantId, correspondingUsersPlant.getConductivity());
+		updatePh(plantId, correspondingUsersPlant.getPh());
+		updateNitrogen(plantId, correspondingUsersPlant.getNitrogen());
+		updatePhosporus(plantId, correspondingUsersPlant.getPhosporus());
+		updatePotasium(plantId, correspondingUsersPlant.getPotasium());
+		updateweather_humidity(plantId, correspondingUsersPlant.getWeather_humidity());
+		updateweather_temperature(plantId, correspondingUsersPlant.getWeather_temperature());
+		updateCropRecommendationFromAi(plantId, cropRecommendationFromAi);
+
     }
 
-    public void updateHumidity(String plantId, int humidity) {
-    	try {
-        	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("humidity_integer");
-            final CountDownLatch latch = new CountDownLatch(1);
-            ref.setValue(humidity, new DatabaseReference.CompletionListener() {
+    public void updateweather_humidity(String plantId, double weather_humidity) {
+        try {
+        	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("weather_humidity");
+        	final CountDownLatch latch = new CountDownLatch(1);
+            ref.setValue(weather_humidity, new DatabaseReference.CompletionListener() {
                 @Override
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                     if (databaseError != null) {
@@ -117,10 +126,30 @@ public class RealtimeDatabaseInteraction {
             e.printStackTrace();
         }
     }
-    
+    public void updateweather_temperature(String plantId, double weather_temperature) {
+        try {
+        	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("weather_temperature");
+        	final CountDownLatch latch = new CountDownLatch(1);
+            ref.setValue(weather_temperature, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    if (databaseError != null) {
+                        System.out.println("Data could not be saved " + databaseError.getMessage());
+                        latch.countDown();
+                    } else {
+                        System.out.println("Data saved successfully.");
+                        latch.countDown();
+                    }
+                }
+            });
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
     public void updateWaterLevel(String plantId,double distance_float) {
         try {
-            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("distance_float");
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("distance");
             final CountDownLatch latch = new CountDownLatch(1);
             ref.setValue(distance_float, new DatabaseReference.CompletionListener() {
                 @Override
@@ -139,9 +168,31 @@ public class RealtimeDatabaseInteraction {
             e.printStackTrace();
         }
     }
-    public void updateTemperature(String plantId, int temperature_integer) {
+    
+    public void updateSoilMoisture(String plantId, double soil_moisture_integer) {
         try {
-        	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("temperature_integer");
+        	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("soil_moisture");
+        	final CountDownLatch latch = new CountDownLatch(1);
+            ref.setValue(soil_moisture_integer, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    if (databaseError != null) {
+                        System.out.println("Data could not be saved " + databaseError.getMessage());
+                        latch.countDown();
+                    } else {
+                        System.out.println("Data saved successfully.");
+                        latch.countDown();
+                    }
+                }
+            });
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    public void updateTemperature(String plantId, double temperature_integer) {
+        try {
+        	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("soil_temperature");
         	final CountDownLatch latch = new CountDownLatch(1);
             ref.setValue(temperature_integer, new DatabaseReference.CompletionListener() {
                 @Override
@@ -160,11 +211,116 @@ public class RealtimeDatabaseInteraction {
             e.printStackTrace();
         }
     }
-    public void updateSoilMoisture(String plantId, int soil_moisture_integer) {
+    public void updateConductivity(String plantId, int conductivity) {
         try {
-        	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("soil_moisture_integer");
+        	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("soil_conductivity");
         	final CountDownLatch latch = new CountDownLatch(1);
-            ref.setValue(soil_moisture_integer, new DatabaseReference.CompletionListener() {
+            ref.setValue(conductivity, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    if (databaseError != null) {
+                        System.out.println("Data could not be saved " + databaseError.getMessage());
+                        latch.countDown();
+                    } else {
+                        System.out.println("Data saved successfully.");
+                        latch.countDown();
+                    }
+                }
+            });
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    public void updatePh(String plantId, double ph) {
+        try {
+        	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("soil_ph");
+        	final CountDownLatch latch = new CountDownLatch(1);
+            ref.setValue(ph, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    if (databaseError != null) {
+                        System.out.println("Data could not be saved " + databaseError.getMessage());
+                        latch.countDown();
+                    } else {
+                        System.out.println("Data saved successfully.");
+                        latch.countDown();
+                    }
+                }
+            });
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    public void updateNitrogen(String plantId, int nitrogen) {
+        try {
+        	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("soil_nitrogen");
+        	final CountDownLatch latch = new CountDownLatch(1);
+            ref.setValue(nitrogen, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    if (databaseError != null) {
+                        System.out.println("Data could not be saved " + databaseError.getMessage());
+                        latch.countDown();
+                    } else {
+                        System.out.println("Data saved successfully.");
+                        latch.countDown();
+                    }
+                }
+            });
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    public void updatePhosporus(String plantId, int phosporus) {
+        try {
+        	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("soil_phosporus");
+        	final CountDownLatch latch = new CountDownLatch(1);
+            ref.setValue(phosporus, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    if (databaseError != null) {
+                        System.out.println("Data could not be saved " + databaseError.getMessage());
+                        latch.countDown();
+                    } else {
+                        System.out.println("Data saved successfully.");
+                        latch.countDown();
+                    }
+                }
+            });
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    public void updatePotasium(String plantId, int potasium) {
+        try {
+        	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("soil_potasium");
+        	final CountDownLatch latch = new CountDownLatch(1);
+            ref.setValue(potasium, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    if (databaseError != null) {
+                        System.out.println("Data could not be saved " + databaseError.getMessage());
+                        latch.countDown();
+                    } else {
+                        System.out.println("Data saved successfully.");
+                        latch.countDown();
+                    }
+                }
+            });
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    public void updateCropRecommendationFromAi(String plantId, String cropRecommendationFromAi) {
+        try {
+        	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("Recommended Crop");
+        	final CountDownLatch latch = new CountDownLatch(1);
+            ref.setValue(cropRecommendationFromAi, new DatabaseReference.CompletionListener() {
                 @Override
                 public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                     if (databaseError != null) {

@@ -2,7 +2,7 @@
 dht11 DHT;
 #define DHT11_PIN 4
 #include <SoftwareSerial.h>
-SoftwareSerial ArduinoUno(6,5);
+SoftwareSerial ArduinoUno(8,9);
 
 char* getMoistureLevel();
 void sendDataToNodeMCU();

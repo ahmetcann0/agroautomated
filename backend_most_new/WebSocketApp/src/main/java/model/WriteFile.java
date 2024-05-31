@@ -22,6 +22,9 @@ public class WriteFile {
             File myObj = new File(filePath+filename);
             if (myObj.createNewFile()) {
                 System.out.println("File created: " + myObj.getName());
+                FileWriter myWriter = new FileWriter(filePath+"\\"+filename,true);
+                myWriter.write("date,time,weather_humidity,weather_temperature,soil_moisture,water_level,soil_temperature,soil_conductivity,soil_ph,soil_nitrogen,soil_phosporus,soil_potasium\n");
+                myWriter.close();
             } else {
                 System.out.println("File already exists.");
             }

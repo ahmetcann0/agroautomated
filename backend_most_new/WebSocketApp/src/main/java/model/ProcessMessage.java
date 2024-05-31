@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.json.*;
 
@@ -63,9 +64,15 @@ public class ProcessMessage{
 							userId, 
 							plantId, 
 							Double.parseDouble(jo.get("water_level").toString()), 
-							Integer.parseInt(jo.get("humidity").toString()),
-							Integer.parseInt(jo.get("soil_moisture").toString()), 
-							Integer.parseInt(jo.get("temperature").toString()));
+							Double.parseDouble(jo.get("soil_moisture").toString()), 
+							Double.parseDouble(jo.get("temperature").toString()), 
+							Integer.parseInt(jo.get("conductivity").toString()),
+							Double.parseDouble(jo.get("temperature").toString()), 
+							Integer.parseInt(jo.get("nitrogen").toString()),
+							Integer.parseInt(jo.get("phosporus").toString()),
+							Integer.parseInt(jo.get("potasium").toString()),
+							Double.parseDouble(jo.get("weather_humidity").toString()), 
+							Double.parseDouble(jo.get("weather_temperature").toString()));
 					
 					tempForPlantIdPlant.put(plantId, userPlant);
 					
@@ -99,15 +106,36 @@ public class ProcessMessage{
 
 					//If Plant With Its PlantId Present
 					Plant currentUserPlant = (userPlantsObj.get(userId)).get(jo.get("plantId").toString());
-					currentUserPlant.setHumidity(Integer.parseInt(jo.get("humidity").toString()));
-					currentUserPlant.setSoil_moisture(Integer.parseInt(jo.get("soil_moisture").toString()));
+					currentUserPlant.setSoil_moisture(Double.parseDouble(jo.get("soil_moisture").toString()));
 					currentUserPlant.setWater_level(Double.parseDouble(jo.get("water_level").toString()));
-					currentUserPlant.setTemperature(Integer.parseInt(jo.get("temperature").toString()));
+					currentUserPlant.setTemperature(Double.parseDouble(jo.get("temperature").toString()));
+					currentUserPlant.setConductivity(Integer.parseInt(jo.get("conductivity").toString()));
+					currentUserPlant.setPh(Double.parseDouble(jo.get("ph").toString()));
+					currentUserPlant.setNitrogen(Integer.parseInt(jo.get("nitrogen").toString()));
+					currentUserPlant.setPhosporus(Integer.parseInt(jo.get("phosporus").toString()));
+					currentUserPlant.setPotasium(Integer.parseInt(jo.get("potasium").toString()));
+					currentUserPlant.setWeather_humidity(Double.parseDouble(jo.get("weather_humidity").toString()));
+					currentUserPlant.setWeather_temperature(Double.parseDouble(jo.get("weather_temperature").toString()));
 
+					int nitrogen = currentUserPlant.getNitrogen();
+					int phosporus = currentUserPlant.getPhosporus();
+					int potasium = currentUserPlant.getPotasium();
+					double soil_temperature = currentUserPlant.getTemperature();
+					double soil_humidity = currentUserPlant.getSoil_moisture();
+					double ph = currentUserPlant.getPh();
+					Random r = new Random();
+					//double rainfall = 20 + (300 - 20) * r.nextDouble();
+					double rainfall = 100.0;
+					System.out.println("rainfall value:" +rainfall);
 					
-					db.updaterDriver(userId, plantId,userPlantsObj);
 					
-					String[] arr = {"humidity:"+jo.get("humidity").toString(), "water_level:"+jo.get("water_level").toString(),"soil_moisture:"+jo.get("soil_moisture").toString(), "temperature:"+jo.get("temperature").toString() };
+
+					String cropRecommendationFromAi = PredictUsingAI.predictCrop(nitrogen, phosporus, potasium, soil_temperature, soil_humidity, ph, rainfall);
+					System.out.println(cropRecommendationFromAi);
+					db.updaterDriver(userId, plantId,userPlantsObj, cropRecommendationFromAi);
+					
+					String[] arr = {jo.get("weather_humidity").toString().trim()+","+jo.get("weather_temperature").toString().trim()+","+jo.get("soil_moisture").toString().trim()+","+jo.get("water_level").toString().trim()+","+jo.get("temperature").toString().trim() +","+
+							jo.get("conductivity").toString() +","+ jo.get("ph").toString().trim() +","+ jo.get("nitrogen").toString() +","+ jo.get("phosporus").toString() +","+ jo.get("potasium").toString()};
 			    	WriteFile wf = new WriteFile(
 			    			filePath,
 			    			fileName);
@@ -118,9 +146,9 @@ public class ProcessMessage{
 				        dbStorage.uploadAFileToStorage(filePath, fileName);
 					}
 			        
-			        if(Integer.parseInt(jo.get("soil_moisture").toString()) < 300) {
+			        if(Double.parseDouble(jo.get("soil_moisture").toString()) < 300.0) {
 			        	try {
-							FCMSender.sendMessageToFcmRegistrationToken();
+//							FCMSender.sendMessageToFcmRegistrationToken();
 							System.out.println("Sended Notification!!!");
 						} catch (Exception e) {
 							e.printStackTrace();
