@@ -3,9 +3,7 @@ package database;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import com.google.auth.oauth2.GoogleCredentials;
@@ -19,93 +17,176 @@ import com.google.firebase.database.ValueEventListener;
 
 import entities.Plant;
 import entities.SensorEntities;
+import server.ws.WsServer;
 
 public class RealtimeDatabaseInteraction {
 
-    private String credentials ;
+    private String credentials;
     private String DATABASE_URL;
 
     private FirebaseDatabase firebaseDatabase;
-    
-    private static RealtimeDatabaseInteraction realtimeDatabaseInteractionObject = null;
+
+    static RealtimeDatabaseInteraction realtimeDatabaseInteractionObject = null;
 
     private RealtimeDatabaseInteraction() throws IOException {
-    	credentials = "C:\\\\Users\\\\Deniz\\\\eclipse-workspace\\\\FirebaseInteraction\\\\agroautomated-8f55e-firebase-adminsdk-mdmjm-56a8631d3b.json";
-    	DATABASE_URL = "https://agroautomated-8f55e-default-rtdb.firebaseio.com/";
+        credentials = "C:\\\\Users\\\\Deniz\\\\eclipse-workspace\\\\FirebaseInteraction\\\\agroautomated-8f55e-firebase-adminsdk-mdmjm-56a8631d3b.json";
+        DATABASE_URL = "https://agroautomated-8f55e-default-rtdb.firebaseio.com/";
     }
+
     public synchronized static RealtimeDatabaseInteraction getInstance() {
-    	if(realtimeDatabaseInteractionObject == null) {
-    		try {
-				realtimeDatabaseInteractionObject = new RealtimeDatabaseInteraction();
-			} catch (IOException e) {
-				System.out.println("Exception in RealtimeDatabaseInteraction>getInstance()");
-				e.printStackTrace();
-			}
-    	}
-    	return realtimeDatabaseInteractionObject;
-    	
+        if (realtimeDatabaseInteractionObject == null) {
+            try {
+                realtimeDatabaseInteractionObject = new RealtimeDatabaseInteraction();
+            } catch (IOException e) {
+                System.out.println("Exception in RealtimeDatabaseInteraction>getInstance()");
+                e.printStackTrace();
+            }
+        }
+        return realtimeDatabaseInteractionObject;
     }
+
     public int initialize() throws FileNotFoundException {
-    	FileInputStream serviceAccount =
-    			new FileInputStream(credentials);
+        FileInputStream serviceAccount =
+            new FileInputStream(credentials);
 
-    	FirebaseOptions options;
-		try {
-			options = FirebaseOptions.builder()
-			        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-			        .setDatabaseUrl(DATABASE_URL)
-			        .build();
-			 FirebaseApp.initializeApp(options);
-			 return 1;
-		} catch (IOException e) {
-			return -1;
-		}
-                       
+        FirebaseOptions options;
+        try {
+            options = FirebaseOptions.builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setDatabaseUrl(DATABASE_URL)
+                    .build();
+            FirebaseApp.initializeApp(options);
+            return 1;
+        } catch (IOException e) {
+            return -1;
+        }
     }
+
     public void retrieveCurrentData(String plantName) {
-    	 DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantName);
-      
-         ref.addListenerForSingleValueEvent(new ValueEventListener() {
- 			
-			  @Override
-			  public void onDataChange(DataSnapshot dataSnapshot) {
-				  
-				    Object document = dataSnapshot.getValue();
-	                SensorEntities sensorData = dataSnapshot.getValue(SensorEntities.class);
-	                System.out.println("Veri Alındı:");
-	                System.out.println("Distance Float: " + sensorData.distance_float);
-	                System.out.println("Humidity Integer: " + sensorData.humidity_integer);
-	                System.out.println("Information String: " + sensorData.information_string);
-	                System.out.println("Soil Moisture Integer: " + sensorData.soil_moisture_integer);
-	                System.out.println("Temperature Integer: " + sensorData.temperature_integer);
-                
-			  }
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantName);
 
-			  @Override
-			  public void onCancelled(DatabaseError error) {
-			  }
-			});
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                SensorEntities sensorData = dataSnapshot.getValue(SensorEntities.class);
+                if (sensorData != null) {
+                    System.out.println("Veri Alındı:");
+                    System.out.println("Distance Float: " + sensorData.distance_float);
+                    System.out.println("Humidity Integer: " + sensorData.humidity_integer);
+                    System.out.println("Information String: " + sensorData.information_string);
+                    System.out.println("Soil Moisture Integer: " + sensorData.soil_moisture_integer);
+                    System.out.println("Temperature Integer: " + sensorData.temperature_integer);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                System.out.println("Error retrieving data: " + error.getMessage());
+            }
+        });
     }
-    
-    public void updaterDriver(int userId, String plantId,  HashMap<Integer, HashMap<String, Plant>> userId_PlantId_Plant_HashMap, String cropRecommendationFromAi) {
-    	Plant correspondingUsersPlant = (userId_PlantId_Plant_HashMap.get(userId)).get(plantId); 
-    	
-		updateWaterLevel(plantId, correspondingUsersPlant.getWater_level());
-		updateSoilMoisture(plantId, correspondingUsersPlant.getSoil_moisture());
-		updateTemperature(plantId, correspondingUsersPlant.getTemperature());
-		
-		updateConductivity(plantId, correspondingUsersPlant.getConductivity());
-		updatePh(plantId, correspondingUsersPlant.getPh());
-		updateNitrogen(plantId, correspondingUsersPlant.getNitrogen());
-		updatePhosporus(plantId, correspondingUsersPlant.getPhosporus());
-		updatePotasium(plantId, correspondingUsersPlant.getPotasium());
-		updateweather_humidity(plantId, correspondingUsersPlant.getWeather_humidity());
-		updateweather_temperature(plantId, correspondingUsersPlant.getWeather_temperature());
-		updateCropRecommendationFromAi(plantId, cropRecommendationFromAi);
 
+    public void addIfButtonPressedListener(int userId,String plantId){
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("ifButtonPressed");
+
+        ref.addValueEventListener(new ValueEventListener() {
+            private Integer lastValue = null;
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Integer currentValue = dataSnapshot.getValue(Integer.class);
+                if (currentValue != null && !currentValue.equals(lastValue)) {
+                    System.out.println("ifButtonPressed value changed: " + currentValue);
+                    lastValue = currentValue;
+                    WsServer.ifIrrigationMustOccur = true;
+                    System.out.println(WsServer.sessions.get(userId));
+
+                    
+//                    try {
+//						WsServer.sessions.get(userId).getBasicRemote().sendText("Irrigate for 5 seconds!");
+//					} catch (IOException e) {
+//						e.printStackTrace();
+//					}
+                    
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("Listener was cancelled: " + databaseError.getMessage());
+            }
+        });
+    }
+    public void ifIrrigationMustOccurListener(int userId,String plantId){
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("ifIrrigationMustOccur");
+
+        ref.addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Boolean currentValue = dataSnapshot.getValue(Boolean.class);
+                if (currentValue.equals(true)) {
+                    System.out.println("ifIrrigationMustOccur value is true: " + currentValue);
+                    WsServer.ifIrrigationMustOccur = true;
+                    
+//                    try {
+//						WsServer.sessions.get(userId).getBasicRemote().sendText("Irrigate for 5 seconds!");
+//					} catch (IOException e) {
+//						e.printStackTrace();
+//					}
+                    
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                System.out.println("Listener was cancelled: " + databaseError.getMessage());
+            }
+        });
+    }
+
+
+    public void updaterDriver(int userId, String plantId, HashMap<Integer, HashMap<String, Plant>> userId_PlantId_Plant_HashMap, String cropRecommendationFromAi) {
+        Plant correspondingUsersPlant = (userId_PlantId_Plant_HashMap.get(userId)).get(plantId);
+
+        updateWaterLevel(plantId, correspondingUsersPlant.getWater_level());
+        updateSoilMoisture(plantId, correspondingUsersPlant.getSoil_moisture());
+        updateTemperature(plantId, correspondingUsersPlant.getTemperature());
+        updateConductivity(plantId, correspondingUsersPlant.getConductivity());
+        updatePh(plantId, correspondingUsersPlant.getPh());
+        updateNitrogen(plantId, correspondingUsersPlant.getNitrogen());
+        updatePhosporus(plantId, correspondingUsersPlant.getPhosporus());
+        updatePotasium(plantId, correspondingUsersPlant.getPotasium());
+        updateweather_humidity(plantId, correspondingUsersPlant.getWeather_humidity());
+        updateweather_temperature(plantId, correspondingUsersPlant.getWeather_temperature());
+        updateCropRecommendationFromAi(plantId, cropRecommendationFromAi);
+
+    }
+    public void updateifIrrigationMustOccur(String plantId, boolean irrigateOrNot) {
+
+        try {
+        	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("ifIrrigationMustOccur");
+        	final CountDownLatch latch = new CountDownLatch(1);
+            ref.setValue(irrigateOrNot, new DatabaseReference.CompletionListener() {
+                @Override
+                public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                    if (databaseError != null) {
+                        System.out.println("Data could not be saved " + databaseError.getMessage());
+                        latch.countDown();
+                    } else {
+                        System.out.println("Data saved successfully.");
+                        latch.countDown();
+                    }
+                }
+            });
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public void updateweather_humidity(String plantId, double weather_humidity) {
+
         try {
         	DatabaseReference ref = FirebaseDatabase.getInstance().getReference("sensor_data").child(plantId).child("weather_humidity");
         	final CountDownLatch latch = new CountDownLatch(1);
@@ -338,7 +419,8 @@ public class RealtimeDatabaseInteraction {
         }
     }
 
+
     public void close() {
-    	FirebaseDatabase.getInstance().getApp().delete();
+        FirebaseDatabase.getInstance().getApp().delete();
     }
 }

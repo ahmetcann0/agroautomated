@@ -5,6 +5,8 @@ import database.FirebaseStorageInteraction;
 import database.RealtimeDatabaseInteraction;
 import entities.Plant;
 import server.ws.WsServer;
+import utilities.CheckMoistureLevelIrrigateIfNecessary;
+import utilities.SensorNotifier;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -13,14 +15,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import javax.websocket.Session;
+
 import org.json.*;
 
 public class ProcessMessage{
-	private RealtimeDatabaseInteraction rdi;
 	private RealtimeDatabaseInteraction db;
 	private FirebaseStorageInteraction dbStorage;
 	
 	private static ProcessMessage processMessageObject = null;
+	int flag = 0;
+
 	
 	private ProcessMessage() {
 		try {
@@ -46,6 +51,14 @@ public class ProcessMessage{
 	public String process(int userId, HashMap<Integer, HashMap<String, Plant>> userPlantsObj, String message) throws IOException, InterruptedException {
 		HashMap<String, Plant> tempForPlantIdPlant = new HashMap<String, Plant>();
 		JSONObject jo = new JSONObject(message); 
+		String plantId = jo.get("plantId").toString();
+		
+		if(flag == 0) {
+			db.addIfButtonPressedListener(userId,plantId);
+			db.ifIrrigationMustOccurListener(userId, plantId);
+			flag =1;
+		}
+		
 		
 		if("retrieveAll".compareTo(jo.get("command").toString()) == 0) {
 	    	int ifInitializedSuccessfully = db.initialize();
@@ -54,7 +67,6 @@ public class ProcessMessage{
 		}
 		else if("addNewPlantToUser".compareTo(jo.get("command").toString()) == 0) {
 			
-			String plantId = jo.get("plantId").toString();
 			
 			boolean ifUserIdPresent = userPlantsObj.containsKey(userId);
 			if(ifUserIdPresent) {
@@ -82,13 +94,11 @@ public class ProcessMessage{
 			}
 			return(userId + "'s plant with id:"+plantId+" was successfully added!");
 			
-
 			//db.close(); //Close the connection to not interfere with another connections.
 			//db = null;
 		}
 		else if("updateExistingPlantValuesRealtime".compareTo(jo.get("command").toString()) == 0) {
 			
-			String plantId = jo.get("plantId").toString();
 			String filePath = "C:\\Users\\Deniz\\OneDrive\\Belgeler\\GitHub\\agroautomated_cloned\\agroautomated\\backend_most_new\\WebSocketApp\\src\\main\\java\\UserPlantRecordFiles\\";
 		    String fileName = plantId+".txt";
 		    
@@ -98,10 +108,11 @@ public class ProcessMessage{
 	        String time = currentTimeAndDate.split(",")[1];
 	        String min = time.split(":")[1];
 	        String sec = time.split(":")[2];
-			
+
 			boolean ifUserIdPresent = userPlantsObj.containsKey(userId);
 			if(ifUserIdPresent) {
 				boolean isPlantWithItsPlantIdPresent = (userPlantsObj.get(userId)).containsKey(jo.get("plantId").toString());
+
 				if(isPlantWithItsPlantIdPresent) {
 
 					//If Plant With Its PlantId Present
@@ -116,46 +127,36 @@ public class ProcessMessage{
 					currentUserPlant.setPotasium(Integer.parseInt(jo.get("potasium").toString()));
 					currentUserPlant.setWeather_humidity(Double.parseDouble(jo.get("weather_humidity").toString()));
 					currentUserPlant.setWeather_temperature(Double.parseDouble(jo.get("weather_temperature").toString()));
-
-					int nitrogen = currentUserPlant.getNitrogen();
-					int phosporus = currentUserPlant.getPhosporus();
-					int potasium = currentUserPlant.getPotasium();
-					double soil_temperature = currentUserPlant.getTemperature();
-					double soil_humidity = currentUserPlant.getSoil_moisture();
-					double ph = currentUserPlant.getPh();
-					Random r = new Random();
-					//double rainfall = 20 + (300 - 20) * r.nextDouble();
-					double rainfall = 100.0;
-					System.out.println("rainfall value:" +rainfall);
 					
 					
+					String cropRecommendationFromAi = PredictUsingAI.predictCrop(currentUserPlant);
+					String irrigationRecommendationFromAi = PredictUsingAI.predictIrrigation(currentUserPlant);
 
-					String cropRecommendationFromAi = PredictUsingAI.predictCrop(nitrogen, phosporus, potasium, soil_temperature, soil_humidity, ph, rainfall);
 					System.out.println(cropRecommendationFromAi);
+					System.out.println(irrigationRecommendationFromAi);
+					
 					db.updaterDriver(userId, plantId,userPlantsObj, cropRecommendationFromAi);
 					
-					String[] arr = {jo.get("weather_humidity").toString().trim()+","+jo.get("weather_temperature").toString().trim()+","+jo.get("soil_moisture").toString().trim()+","+jo.get("water_level").toString().trim()+","+jo.get("temperature").toString().trim() +","+
-							jo.get("conductivity").toString() +","+ jo.get("ph").toString().trim() +","+ jo.get("nitrogen").toString() +","+ jo.get("phosporus").toString() +","+ jo.get("potasium").toString()};
+					String[] arr = {"weather_humidity:"+jo.get("weather_humidity").toString().trim()+","+"weather_temperature:" +jo.get("weather_temperature").toString().trim()+","+"soil_moisture:"+jo.get("soil_moisture").toString().trim()+","+"water_level:"+jo.get("water_level").toString().trim()+","+"temperature:"+jo.get("temperature").toString().trim() +","+
+							"conductivity:"+jo.get("conductivity").toString() +","+ "ph:"+ jo.get("ph").toString().trim() +","+"nitrogen:"+ jo.get("nitrogen").toString() +","+ "phosporus:"+jo.get("phosporus").toString() +","+"potasium:"+ jo.get("potasium").toString()};
 			    	WriteFile wf = new WriteFile(
 			    			filePath,
 			    			fileName);
-			        wf.writeLineDataAndTimestamp(arr); 
 			        
-			        if(Integer.parseInt(min) % 1 == 0 && Double.parseDouble(sec) < 10) {						
+			        if(Integer.parseInt(min) % 1 == 0 && Double.parseDouble(sec) < 10) {
+				        wf.writeLineDataAndTimestamp(arr); 
 			        	System.out.println("Written existing file to Firebase Storage!!!");			        
 				        dbStorage.uploadAFileToStorage(filePath, fileName);
 					}
 			        
-			        if(Double.parseDouble(jo.get("soil_moisture").toString()) < 300.0) {
-			        	try {
-//							FCMSender.sendMessageToFcmRegistrationToken();
-							System.out.println("Sended Notification!!!");
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-			        }
+			        SensorNotifier notifier = new SensorNotifier();
+			        notifier.checkAndSendNotifications(currentUserPlant);
+			        
 
-					return(userId + "'s plant with id:"+plantId+" realtime values was successfully updated and written to local file!");
+			        String whetherIrrigateMustOccur = CheckMoistureLevelIrrigateIfNecessary.CheckMoistureLevelChangeDatabaseVariable(currentUserPlant);
+			        System.out.println(whetherIrrigateMustOccur);
+			        
+					return(userId + "'s plant with id:"+plantId+" realtime values was successfully updated.");
 				}		
 			}
 			return(userId + "'s "+plantId+" plant's values has been updated on the Realtime Database!");
@@ -171,13 +172,8 @@ public class ProcessMessage{
 	    	//dbStorage.close(); //Close the connection to not interfere with another connections.
 		}
 		
-
 		return "Operation was not successful!";
-//		if(message.compareTo("Retrieve data") == 0)
-//        	rdi.retrieveCurrentData("plant_3");
-//        else if(message.split(",")[0].compareTo("Update Humidity") == 0) {
-//        	rdi.updateHumidity(Integer.parseInt(message.split(",")[1]), "plant_3");
-//        }
+
 	}
 	
 }

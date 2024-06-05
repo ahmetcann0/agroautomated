@@ -20,14 +20,17 @@ import database.FirebaseStorageInteraction;
 import database.RealtimeDatabaseInteraction;
 import model.ProcessMessage;
 import model.WriteFile;
+import model.ProvideWeatherInformation;
 import entities.Plant;
  
 @ServerEndpoint("/websocketendpoint")
 public class WsServer {
 	 private Session session;
 	 
-	 Map<Integer, Session> sessions = new ConcurrentHashMap<>();
+	 public static Map<Integer, Session> sessions = new ConcurrentHashMap<>();
 	 HashMap<Integer, HashMap<String, Plant>> userPlants = new HashMap<Integer, HashMap<String, Plant>>();
+	 
+	 public static boolean ifIrrigationMustOccur = false;
 	 
 	 //Integer: userId, String:plantId, Plant: Plant object.
 
@@ -39,11 +42,8 @@ public class WsServer {
 
     	this.session = session;
     	System.out.println("Client has been connected: "+session.getId());
-        session.getBasicRemote().sendText("Websocket Connection Established!");
-        
-//        JSONObject jo = new JSONObject();
-//        jo.put("clientId", session.getId());
-//        session.getBasicRemote().sendText(jo.toString());
+    	//ProvideWeatherInformation weather = new ProvideWeatherInformation();
+    	//weather.getRainfallInfo();
 
     }
      
@@ -57,32 +57,41 @@ public class WsServer {
     public void onMessage(String message) throws IOException, InterruptedException{
     	
         System.out.println("Message from the client: " + message);
-        
-        
-		JSONObject userMessage = new JSONObject(message); 
+    	JSONObject userMessage = new JSONObject(message);   
+    	
         int userId = Integer.parseInt(userMessage.get("clientId").toString());
+        String plantId = userMessage.get("plantId").toString();;
         
-        boolean ifUserIdPresent = sessions.containsKey(Integer.valueOf(userId));
-		if(!ifUserIdPresent) {
-			sessions.put(Integer.valueOf(userId), session); //Added user with the id to the HashMap.
-		}
-		boolean isPlantIdPresent = userPlants.containsKey(Integer.valueOf(userId));
-		if(!isPlantIdPresent) {
-	        userPlants.put(Integer.valueOf(userId), new HashMap<String, Plant>());
-		}
-   
-        long startTime = System.currentTimeMillis();
-        String result = pm.process(userId, userPlants, message);
-        System.out.println(result);
-        long stopTime = System.currentTimeMillis();
-        System.out.println("Elapsed time is: " +(stopTime-startTime)+" ms");
-           
-		//JSONObject jo = new JSONObject(message); 
-
-        session.getBasicRemote().sendText("Process finished client can send message!");
+        if(message.contains("clientId") && !message.contains("Irrigation finished")) {
         
-
-//        FirebaseStorageInteraction dbStorage = new FirebaseStorageInteraction();
+            boolean ifUserIdPresent = sessions.containsKey(Integer.valueOf(userId));
+    		if(!ifUserIdPresent) {
+    			sessions.put(Integer.valueOf(userId), session); //Added user with the id to the HashMap.
+    		}
+    		boolean isPlantIdPresent = userPlants.containsKey(Integer.valueOf(userId));
+    		if(!isPlantIdPresent) {
+    	        userPlants.put(Integer.valueOf(userId), new HashMap<String, Plant>());
+    		}
+       
+            long startTime = System.currentTimeMillis();
+            String result = pm.process(userId, userPlants, message);
+            System.out.println(result);
+            long stopTime = System.currentTimeMillis();
+            System.out.println("Elapsed time is: " +(stopTime-startTime)+" ms");
+               
+        }
+        if(ifIrrigationMustOccur) {
+        	if(message.contains("Irrigation finished")) {
+        		ifIrrigationMustOccur = false;
+        		RealtimeDatabaseInteraction.getInstance().updateifIrrigationMustOccur(plantId, false);
+                session.getBasicRemote().sendText("send sensor data");
+        	}else {
+                session.getBasicRemote().sendText("Irrigate for 5 seconds!");
+        	}
+        }else {
+            session.getBasicRemote().sendText("send sensor data");
+        }
+        	
 //    	dbStorage.initialize();
 //
 //    	dbStorage.close(); 

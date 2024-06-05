@@ -24,8 +24,8 @@ public class FCMSender {
     FirebaseApp.initializeApp(options);
   }
 
-  public static void sendMessageToFcmRegistrationToken() throws Exception {
-    String registrationToken = "cyjLT9TkQZeO3_pSomaIbu:APA91bF_ySsCcra0tnRMHq4JQXjV0mv4SAQ0SoZfTTOL8scyZzlE63aUvx3vY3VfYHbnbXHa0Vs2sBgFHMadkhcqovLhMC5LgLisbXTAzvcEVQsLB9SIhvfT6sgDW-eLTvfXd8qMhM8h";
+  public static void sendMessageToFcmRegistrationToken(String messageToBeSent) throws Exception {
+    String registrationToken = "dStURyHORzCDbX7A9hYKdU:APA91bFPx3Xc0Gwwp6YaYblg2j5jeZIkMaCvvVRtIibYB3c1o6YMowAgI32r4CYfMpL69KFG0IRZ_O8VTPfHzlFrFIwo-j8q4YuyPidUReblaK7YiY8CLSjxtWxQMxPPjFGlkwlFQ_wB";
     Message message =
         Message.builder()
             .putData("FCM", "https://firebase.google.com/docs/cloud-messaging")
@@ -33,7 +33,7 @@ public class FCMSender {
             .setNotification(
                 Notification.builder()
                     .setTitle("AgroAutomaTED")
-                    .setBody("Water Level is low!!!")
+                    .setBody(messageToBeSent)
                     .build())
             .setToken(registrationToken)
             .build();

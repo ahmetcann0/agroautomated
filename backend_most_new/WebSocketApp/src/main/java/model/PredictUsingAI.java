@@ -2,9 +2,11 @@ package model;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.Random;
 
 import org.netlib.util.doubleW;
 
+import entities.Plant;
 import java_cup.internal_error;
 import weka.classifiers.Classifier;
 import weka.core.DenseInstance;
@@ -38,33 +40,32 @@ public class PredictUsingAI {
 		this.Rainfall = rainfall;
 	}
 	
-	public void predictIrrigation(String Croptype, int Cropdays, int Soilmoisture, int Temperature ,int Humidity) {
+	public static String predictIrrigation(Plant plantObj) {
+		double soil_temperature = plantObj.getTemperature();
+		double soil_moisture = plantObj.getSoil_moisture();
+		
         try {
-            Classifier rf_model = (Classifier) SerializationHelper.read("C:\\Users\\kaan_\\Desktop\\Predict\\wekaproject\\rf_model.model");
+            Classifier rf_model = (Classifier) SerializationHelper.read("C:\\Users\\Deniz\\OneDrive\\Belgeler\\GitHub\\agroautomated_cloned\\agroautomated\\backend_most_new\\WebSocketApp\\src\\AIModels\\rf_model.model");
 
-            DataSource source = new DataSource("C:\\Users\\kaan_\\Desktop\\untitled\\src\\main\\java\\org\\example\\datasets.csv");
+            DataSource source = new DataSource("C:\\Users\\Deniz\\OneDrive\\Belgeler\\GitHub\\agroautomated_cloned\\agroautomated\\backend_most_new\\WebSocketApp\\src\\AIModels\\soil_moisture_prediction.csv");
             Instances data = source.getDataSet();
             if (data.classIndex() == -1)
                 data.setClassIndex(data.numAttributes() - 1);
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-
             Instance user_input = new DenseInstance(data.numAttributes());
             user_input.setDataset(data);
 
-            String cropType = Croptype;
+            String cropType = "Garden Flowers";
             user_input.setValue(data.attribute("CropType"), cropType);
 
-            int cropDays = Cropdays;
+            int cropDays = 67;
             user_input.setValue(data.attribute("CropDays"), cropDays);
 
-            int soilMoisture = Soilmoisture;
-            user_input.setValue(data.attribute("SoilMoisture"), soilMoisture);
+            user_input.setValue(data.attribute("SoilMoisture"), soil_moisture);
 
-            int temperature = Temperature;
-            user_input.setValue(data.attribute("temperature"), temperature);
+            user_input.setValue(data.attribute("temperature"), soil_temperature);
 
-            int humidity = Humidity;
+            int humidity = 10;
             user_input.setValue(data.attribute("Humidity"), humidity);
 
             double prediction = rf_model.classifyInstance(user_input);
@@ -73,66 +74,54 @@ public class PredictUsingAI {
             
 
             if (pr == 1.0) {
-                System.out.println("1");
+                return "Irrigate";
             } else {
-                System.out.println("0");
+                return "Do not Irrigate";
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return "Operation was unsuccessful";
     }
 	
-	public static String predictCrop(double Nitrogen, double Phosphorous, double Potassium, double Temperature, double Humidity, double pH, double Rainfall ) {
+	public static String predictCrop(Plant plantObj) {
+		
+		int nitrogen = plantObj.getNitrogen();
+		int phosporus = plantObj.getPhosporus();
+		int potasium = plantObj.getPotasium();
+		double soil_temperature = plantObj.getTemperature();
+		double soil_humidity = plantObj.getSoil_moisture();
+		double ph = plantObj.getPh();
+		
 		try {
             
             Classifier crf_model = (Classifier) SerializationHelper.read("C:\\Users\\Deniz\\OneDrive\\Belgeler\\GitHub\\agroautomated_cloned\\agroautomated\\backend_most_new\\WebSocketApp\\src\\AIModels\\cropmodel.model");
-
             
             DataSource source = new DataSource("C:\\Users\\Deniz\\OneDrive\\Belgeler\\GitHub\\agroautomated_cloned\\agroautomated\\backend_most_new\\WebSocketApp\\src\\AIModels\\Crop_recommendation.csv");
             Instances data = source.getDataSet();
             if (data.classIndex() == -1)
                 data.setClassIndex(data.numAttributes() - 1);
 
-            
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-
-            
+                        
             Instance user_input = new DenseInstance(data.numAttributes());
             user_input.setDataset(data);
 
-            
-
-            double N = Nitrogen;
-            user_input.setValue(data.attribute("N"), N);
-			
-
-            double P = Phosphorous;
-            user_input.setValue(data.attribute("P"), P);
-			
-
-            double K = Potassium;
-            user_input.setValue(data.attribute("K"), K);
-			
-
-            double temperature = Temperature;
-            user_input.setValue(data.attribute("temperature"), temperature);
-
-        
-            double humidity = Humidity;
-            user_input.setValue(data.attribute("humidity"), humidity);
-
-
-            double ph = pH;
+            user_input.setValue(data.attribute("N"), nitrogen);
+            user_input.setValue(data.attribute("P"), phosporus);
+            user_input.setValue(data.attribute("K"), potasium);
+            user_input.setValue(data.attribute("temperature"), soil_temperature);
+            user_input.setValue(data.attribute("humidity"), soil_humidity);
             user_input.setValue(data.attribute("ph"), ph);
 
+            Random r = new Random();
+			//double rainfall = 20 + (300 - 20) * r.nextDouble();
+			double rainfall = 36.7;
+			System.out.println("rainfall value:" +rainfall);
             
-            double rainfall = Rainfall;
             user_input.setValue(data.attribute("rainfall"), rainfall);
-
             
             double prediction = crf_model.classifyInstance(user_input);
-
             
             String predictedLabel = data.classAttribute().value((int) prediction);
             //System.out.println("Predicted crop label: " + predictedLabel);
