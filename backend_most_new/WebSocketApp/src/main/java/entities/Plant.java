@@ -11,6 +11,7 @@ public class Plant {
 	private int nitrogen;
 	private int phosporus;
 	private int potasium;
+	boolean ifIrrigationMustOccur;
 	
 	private double weather_humidity;
 	private double weather_temperature;

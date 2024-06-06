@@ -14,8 +14,13 @@ public class ProvideWeatherInformation {
     public void getRainfallInfo() {
     	OkHttpClient client = new OkHttpClient();
 
-        String location = "42.3478,-71.0466";
-        String apiKey = "DiHBac7ALdvvJIfc4VtIw6eJVmPc6rb1";
+        String apiEndPoint="https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/";
+        String location="Ankara, TURKEY";
+        String startDate=null; //optional (omit for forecast)
+        String endDate=null; //optional (requires a startDate if present)
+        String unitGroup="metric"; //us,metric,uk 
+        String apiKey="https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/ANKARA?unitGroup=us&key=YOUR_API_KEY&contentType=json";
+        
         Request request = new Request.Builder()
                 .url("https://api.tomorrow.io/v4/weather/forecast?location=" + location + "&apikey=" + apiKey)
                 .get()
@@ -40,7 +45,7 @@ public class ProvideWeatherInformation {
                 JSONObject values = minuteData.getJSONObject("values");
                 double temperature = values.getDouble("temperature");
                 double humidity = values.getDouble("humidity");
-                double precipitation = values.getDouble("precipitationProbability");
+                double precipitation = values.getDouble("precip");
                     
                 System.out.println("Time: " + time + ", Temperature: " + temperature + ", Humidity: " + humidity + ", Precipitation Probability: " + precipitation);
                 

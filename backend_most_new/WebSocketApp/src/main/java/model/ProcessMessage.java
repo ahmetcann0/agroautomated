@@ -6,6 +6,7 @@ import database.RealtimeDatabaseInteraction;
 import entities.Plant;
 import server.ws.WsServer;
 import utilities.CheckMoistureLevelIrrigateIfNecessary;
+import utilities.CheckWaterTankLevel;
 import utilities.SensorNotifier;
 
 import java.io.IOException;
@@ -48,7 +49,7 @@ public class ProcessMessage{
 		return processMessageObject;	
 	}
 	
-	public String process(int userId, HashMap<Integer, HashMap<String, Plant>> userPlantsObj, String message) throws IOException, InterruptedException {
+	public String process(int userId, HashMap<Integer, HashMap<String, Plant>> userPlantsObj, String message) throws Exception {
 		HashMap<String, Plant> tempForPlantIdPlant = new HashMap<String, Plant>();
 		JSONObject jo = new JSONObject(message); 
 		String plantId = jo.get("plantId").toString();
@@ -149,12 +150,12 @@ public class ProcessMessage{
 				        dbStorage.uploadAFileToStorage(filePath, fileName);
 					}
 			        
-			        SensorNotifier notifier = new SensorNotifier();
-			        notifier.checkAndSendNotifications(currentUserPlant);
 			        
-
 			        String whetherIrrigateMustOccur = CheckMoistureLevelIrrigateIfNecessary.CheckMoistureLevelChangeDatabaseVariable(currentUserPlant);
 			        System.out.println(whetherIrrigateMustOccur);
+			        String waterLevelInfo =  CheckWaterTankLevel.CheckWaterTankLevelChangeDatabaseVariable(currentUserPlant);
+			        System.out.println(waterLevelInfo);
+
 			        
 					return(userId + "'s plant with id:"+plantId+" realtime values was successfully updated.");
 				}		

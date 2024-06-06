@@ -40,7 +40,7 @@ public class FCMSender {
 
     FirebaseMessaging.getInstance().send(message);
 
-    System.out.println("Message to FCM Registration Token sent successfully!!");
+    System.out.println("Message to FCM Registration Token sent successfully:"+messageToBeSent);
   }
 
   private static void sendMessageToFcmTopic() throws Exception {

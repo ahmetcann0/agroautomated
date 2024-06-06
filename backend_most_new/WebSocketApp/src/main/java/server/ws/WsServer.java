@@ -54,7 +54,7 @@ public class WsServer {
     }
      
     @OnMessage
-    public void onMessage(String message) throws IOException, InterruptedException{
+    public void onMessage(String message) throws Exception{
     	
         System.out.println("Message from the client: " + message);
     	JSONObject userMessage = new JSONObject(message);   

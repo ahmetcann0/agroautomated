@@ -13,8 +13,16 @@ const int trigPin = 3;
 const int echoPin = 2;
 
 void setup() {
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
+  pinMode(12, OUTPUT);
+  pinMode(11, INPUT);
+  digitalWrite(12, LOW);
+  delayMicroseconds(2);
+  digitalWrite(12, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(12, LOW);
+  float duration = pulseIn(11, HIGH);
+  return (duration*.0343)/2;
+
   pinMode(10,OUTPUT);
   Serial.begin(9600);
   ArduinoUno.begin(4800);

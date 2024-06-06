@@ -18,6 +18,7 @@ import com.google.firebase.database.ValueEventListener;
 import entities.Plant;
 import entities.SensorEntities;
 import server.ws.WsServer;
+import utilities.SensorNotifier;
 
 public class RealtimeDatabaseInteraction {
 
@@ -99,14 +100,7 @@ public class RealtimeDatabaseInteraction {
                     System.out.println("ifButtonPressed value changed: " + currentValue);
                     lastValue = currentValue;
                     WsServer.ifIrrigationMustOccur = true;
-                    System.out.println(WsServer.sessions.get(userId));
 
-                    
-//                    try {
-//						WsServer.sessions.get(userId).getBasicRemote().sendText("Irrigate for 5 seconds!");
-//					} catch (IOException e) {
-//						e.printStackTrace();
-//					}
                     
                 }
             }
